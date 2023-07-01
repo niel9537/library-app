@@ -1,0 +1,173 @@
+﻿@model StudentManagementApp.Models.BukuVM
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Student Add / Update</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <form method="post" asp-area="" asp-controller="Buku" asp-action="AddUpdateBuku">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="id_buku" name="id_buku"/>
+                <input type="hidden" id="tanggal" name="tanggal" value="2023" />
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <label for="kode">Kode Buku</label>
+                    </div>
+                    <div class="col-12">
+                        <input type="text" class="form-control" name="kode" id="kode" placeholder="Masukan Kode Buku" required></input>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <label for="judul">Judul Buku</label>
+                    </div>
+                    <div class="col-12">
+                        <input type="text" class="form-control" name="judul" id="judul" placeholder="Masukan Judul Buku" required></input>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <label for="tahun">Tahun Buku</label>
+                    </div>
+                    <div class="col-12">
+                        <input type="number" class="form-control" name="tahun" id="tahun" placeholder="Masukan Tahun Buku" required></input>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <label for="isi">Isi Buku</label>
+                    </div>
+                    <div class="col-12">
+                        <input type="text" class="form-control" name="isi" id="isi" placeholder="Masukan Isi Buku" required></input>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <label for="pengarang">Pengarang Buku</label>
+                    </div>
+                    <div class="col-12">
+                        <input type="text" class="form-control" name="pengarang" id="pengarang" placeholder="Masukan Pengarang Buku" required></input>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <label for="penerbit">Penerbit Buku</label>
+                    </div>
+                    <div class="col-12">
+                        <input type="text" class="form-control" name="penerbit" id="penerbit" placeholder="Masukan Penerbit Buku" required></input>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <label for="jumlah">Jumlah Buku</label>
+                    </div>
+                    <div class="col-12">
+                        <input type="number" class="form-control" name="jumlah" id="jumlah" placeholder="Masukan Jumlah Buku" required></input>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-success">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            @{
+                if (TempData["SuccessMsg"] != null)
+                {
+                    <h2 class="bg-success">@TempData["SuccessMsg"]</h2>
+                }
+                if (TempData["ErrorMsg"] != null)
+                {
+                    <h2 class="bg-danger">@TempData["ErrorMsg"]</h2>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+
+<h1>List Buku</h1>
+
+<div class="container">
+    <table class="table table-bordered">
+        <tr>
+            <th>ID</th>
+            <th>Kode</th>
+            <th>Judul</th>
+            <th>Tahun</th>
+            <th>Isi</th>
+            <th>Pengarang</th>
+            <th>Penerbit</th>
+            <th>Jumlah</th>
+            <th>Tanggal</th>
+            <th>Action</th>
+        </tr>
+        @{
+            if(Model.BukuList!=null && Model.BukuList.Count > 0)
+            {
+                foreach(var item in Model.BukuList)
+                {
+                    <tr>
+                        <td>@item.id_buku</td>
+                        <td>@item.kode</td>
+                        <td>@item.judul</td>
+                        <td>@item.tahun</td>
+                        <td>@item.isi</td>
+                        <td>@item.pengarang</td>
+                        <td>@item.penerbit</td>
+                        <td>@item.jumlah</td>
+                        <td>@item.tanggal</td>
+                        <td>
+                            <a onclick="DeleteBukuRecord('@item.id_buku')" style="cursor:pointer;">Hapus</a>&nbsp;&nbsp;&nbsp;
+                            <a onclick="EditBukuRecord('@item.id_buku','@item.kode','@item.judul','@item.tahun','@item.isi','@item.pengarang','@item.penerbit','@item.jumlah','@item.tanggal')" style="cursor:pointer;">Edit</a>&nbsp;&nbsp;&nbsp;
+                        </td>
+                    </tr>
+                }
+            }
+        }
+    </table>
+
+</div>
+
+<script type="text/javascript">
+    function DeleteBukuRecord(id_buku){
+        let response=confirm("Do you want to Delete this record?");
+
+        if(response){
+            $.ajax({
+                type:"POST",
+                url: '@Url.Action("DeleteBuku","Buku")',
+                data:{id_buku : id_buku},
+                success:function(response){
+                    if(response.message=="Berhasil Dihapus"){
+                        window.location.reload();
+                    }else{
+                        alert(response.message);
+                    }
+                },
+                complete:function(){
+
+                },
+                failure:function(jqXHR,textStatus, errorThrown){
+                    alert("Muncul Error ! Silahkan coba lagi");
+                }
+            });
+        }
+    }    
+    function EditBukuRecord(id_buku,kode,judul,tahun,isi,pengarang,penerbit,jumlah,tanggal){
+        $('#id_buku').val(id_buku);
+        $('#kode').val(kode);
+        $('#judul').val(judul);
+        $('#tahun').val(tahun);
+        $('#isi').val(isi);
+        $('#pengarang').val(pengarang);
+        $('#penerbit').val(penerbit);
+        $('#jumlah').val(jumlah);
+        $('#tanggal').val(tanggal);
+    }
+</script>
+                         
